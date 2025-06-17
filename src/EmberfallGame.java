@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,10 +20,23 @@ public class EmberfallGame {
     private boolean flameScepterUnlocked = false;
     private boolean flameScepterPurchased = false;
     private JButton emberAshButton;
+    private JButton flameboundInsightButton;
     private Image scaledFlameImage;
     private Image scaledFlameBurstImage;
     private boolean glowActive = false;
     private JLabel flameLabel;
+    private boolean flameboundInsightUnlocked = false;
+    private JPanel flamePanel;
+
+    private void updateFlameGlow() {
+        int glowStrength = Math.min(ash / 25, 10);
+        int alpha = Math.min(255, glowStrength * 25);
+
+        Color glowColor = new Color(255, 140, 0, alpha);
+        Border glowingBorder = BorderFactory.createLineBorder(glowColor, 4);
+
+        flameLabel.setBorder(glowingBorder);
+    }
 
     public EmberfallGame() {
         // Create the main window (frame)
@@ -37,29 +51,43 @@ public class EmberfallGame {
         scaledFlameImage = flameImage.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
         scaledFlameBurstImage = flameBurstImage.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
 
-        flameLabel = new JLabel(new ImageIcon(scaledFlameImage));
-
         JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setLayout(new GridBagLayout()); // ✅ true centering
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
 
-        JLabel flameLabel = new JLabel(new ImageIcon(scaledFlameImage));
+        flameLabel = new JLabel(new ImageIcon(scaledFlameImage));
         flameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        flameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // initial padding
 
         JButton tendButton = new JButton("Tend the Flame");
         tendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        centerPanel.add(Box.createVerticalGlue());             // optional vertical spacing
-        centerPanel.add(flameLabel);
-        centerPanel.add(Box.createVerticalStrut(20));          // space between image and button
-        centerPanel.add(tendButton);
-        centerPanel.add(Box.createVerticalGlue());             // optional vertical spacing
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+        innerPanel.setOpaque(false);
+
+        innerPanel.add(flameLabel);
+        innerPanel.add(Box.createVerticalStrut(10));
+        innerPanel.add(tendButton);
+
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        centerPanel.add(innerPanel, gbc);
+
 
         // Clickable flame
         flameLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ash++;
+                ash += flameboundInsightUnlocked ? 2 : 1;
                 ashLabel.setText("Ash: " + ash);
+                updateFlameGlow();
                 statusLabel.setText("The flame responds to your touch, gathering ash...");
 
                 flameLabel.setIcon(new ImageIcon(scaledFlameBurstImage));
@@ -98,8 +126,9 @@ public class EmberfallGame {
         tendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ash++;
+                ash += flameboundInsightUnlocked ? 2 : 1;
                 ashLabel.setText("Ash: " + ash);
+                updateFlameGlow();
                 if (ash >= 10 && !ashCrucibleUnlocked) {
                     ashCrucibleUnlocked = true;
                     statusLabel.setText("The Ash Crucible is now unlocked! You can use it to refine ash.");
@@ -173,9 +202,36 @@ public class EmberfallGame {
                     }
                     ash -= 5;
                     emberedAsh++;
+
+                    if (emberedAsh >= 20 && !flameboundInsightUnlocked) {
+                        flameboundInsightButton.setVisible(true);
+                        statusLabel.setText("A flame within you stirs... A deeper understanding of the Flame awakens.");
+                        buttonPanel.revalidate();
+                        buttonPanel.repaint();
+                    }
+
                     ashLabel.setText("Ash: " + ash);
                     emberedAshLabel.setText("Embered Ash: " + emberedAsh);
                 }
+            }
+        });
+
+        flameboundInsightButton = new JButton("Channel Flamebound Insight - 20 Embered Ash");
+        flameboundInsightButton.setVisible(false);
+        buttonPanel.add(flameboundInsightButton);
+
+        flameboundInsightButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (emberedAsh < 20) {
+                    statusLabel.setText("You lack the Embered Ash needed to channel deeper insight.");
+                    return;
+                }
+                emberedAsh -= 20;
+                emberedAshLabel.setText("Embered Ash: " + emberedAsh);
+                flameboundInsightUnlocked = true;
+                flameboundInsightButton.setVisible(false);
+                statusLabel.setText("The Flame whispers forgotten truths... You gather more Ash with each breath.");
             }
         });
 
