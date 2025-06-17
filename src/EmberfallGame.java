@@ -20,6 +20,9 @@ public class EmberfallGame {
     private boolean flameScepterPurchased = false;
     private JButton emberAshButton;
     private Image scaledFlameImage;
+    private Image scaledFlameBurstImage;
+    private boolean glowActive = false;
+    private JLabel flameLabel;
 
     public EmberfallGame() {
         // Create the main window (frame)
@@ -28,8 +31,13 @@ public class EmberfallGame {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JPanel buttonPanel = new JPanel();
         ImageIcon flameIcon = new ImageIcon("src/images/flame.png");
+        ImageIcon flameBurstIcon = new ImageIcon("src/images/flame_burst.png");
         Image flameImage = flameIcon.getImage();
+        Image flameBurstImage = flameBurstIcon.getImage();
         scaledFlameImage = flameImage.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+        scaledFlameBurstImage = flameBurstImage.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+
+        flameLabel = new JLabel(new ImageIcon(scaledFlameImage));
 
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -53,6 +61,17 @@ public class EmberfallGame {
                 ash++;
                 ashLabel.setText("Ash: " + ash);
                 statusLabel.setText("The flame responds to your touch, gathering ash...");
+
+                flameLabel.setIcon(new ImageIcon(scaledFlameBurstImage));
+
+                Timer timer = new Timer(100, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        flameLabel.setIcon(new ImageIcon(scaledFlameImage));
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
             }
         });
 
