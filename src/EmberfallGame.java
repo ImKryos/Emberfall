@@ -27,6 +27,11 @@ public class EmberfallGame {
     private JLabel flameLabel;
     private boolean flameboundInsightUnlocked = false;
     private JPanel flamePanel;
+    private boolean runeboundCrucibleUnlocked = false;
+    private boolean runeboundCruciblePurchased = false;
+    private JButton runeboundCrucibleButton;
+    private JPanel topPanel;
+    private JPanel buttonPanel;
 
     private void updateFlameGlow() {
         int glowStrength = Math.min(ash / 25, 10);
@@ -38,12 +43,48 @@ public class EmberfallGame {
         flameLabel.setBorder(glowingBorder);
     }
 
+    private void checkUnlocks() {
+        if (ash >= 10 && !ashCrucibleUnlocked) {
+            ashCrucibleUnlocked = true;
+            statusLabel.setText("The Ash Crucible is now unlocked! You can use it to refine ash.");
+            buttonPanel.add(buildCrucibleButton);
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+
+        if (ash >= 50 && !flameScepterUnlocked) {
+            flameScepterUnlocked = true;
+            statusLabel.setText("The Flame Scepter is now unlocked! Purchase it to ember ash.");
+            emberAshButton.setText("Purchase Flame Scepter - 50 Ash");
+            buttonPanel.add(emberAshButton);
+            emberedAshLabel.setText("Embered Ash: 0");
+            topPanel.revalidate();
+            topPanel.repaint();
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+
+        if (emberedAsh >= 20 && !flameboundInsightUnlocked) {
+            flameboundInsightButton.setVisible(true);
+            statusLabel.setText("A flame within you stirs... A deeper understanding of the Flame awakens.");
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+
+        if (emberedAsh >= 30 && !runeboundCrucibleUnlocked) {
+            runeboundCrucibleUnlocked = true;
+            runeboundCrucibleButton.setVisible(true);
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+    }
+
     public EmberfallGame() {
         // Create the main window (frame)
         frame = new JFrame("Throne of Ashes: Emberfall");
         frame.setLayout(new BorderLayout());
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JPanel buttonPanel = new JPanel();
+        topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel = new JPanel();
         ImageIcon flameIcon = new ImageIcon("src/images/flame.png");
         ImageIcon flameBurstIcon = new ImageIcon("src/images/flame_burst.png");
         Image flameImage = flameIcon.getImage();
@@ -86,6 +127,7 @@ public class EmberfallGame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 ash += flameboundInsightUnlocked ? 2 : 1;
+                checkUnlocks();
                 ashLabel.setText("Ash: " + ash);
                 updateFlameGlow();
                 statusLabel.setText("The flame responds to your touch, gathering ash...");
@@ -128,25 +170,8 @@ public class EmberfallGame {
             public void actionPerformed(ActionEvent e) {
                 ash += flameboundInsightUnlocked ? 2 : 1;
                 ashLabel.setText("Ash: " + ash);
+                checkUnlocks();
                 updateFlameGlow();
-                if (ash >= 10 && !ashCrucibleUnlocked) {
-                    ashCrucibleUnlocked = true;
-                    statusLabel.setText("The Ash Crucible is now unlocked! You can use it to refine ash.");
-                    buttonPanel.add(buildCrucibleButton);
-                    buttonPanel.revalidate();
-                    buttonPanel.repaint();
-                }
-                if (ash >= 50 && !flameScepterUnlocked) {
-                    flameScepterUnlocked = true;
-                    statusLabel.setText("The Flame Scepter is now unlocked! Purchase it to ember ash.");
-                    emberAshButton.setText("Purchase Flame Scepter - 50 Ash");
-                    buttonPanel.add(emberAshButton);
-                    emberedAshLabel.setText("Embered Ash: 0");
-                    topPanel.revalidate();
-                    topPanel.repaint();
-                    buttonPanel.revalidate();
-                    buttonPanel.repaint();
-                }
 
             }
         });
@@ -168,11 +193,13 @@ public class EmberfallGame {
                 ash -= 10;
                 ashLabel.setText("Ash: " + ash);
                 statusLabel.setText("Ash Crucible activated! Ash will now accumulate passively...");
+                checkUnlocks();
                 ashCrucibleTimer = new Timer(3000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        ash++;
+                        ash += runeboundCruciblePurchased ? 2: 1;
                         ashLabel.setText("Ash: " + ash);
+                        checkUnlocks();
                     }
                 });
                 ashCrucibleTimer.start();
@@ -195,6 +222,7 @@ public class EmberfallGame {
                     emberedAshLabel.setText("Embered Ash: " + emberedAsh);
                     emberAshButton.setText("Ember Ash - 5 Ash");
                     statusLabel.setText("The Flame Scepter radiates heat in your hand...");
+                    checkUnlocks();
                 } else {
                     if (ash < 5) {
                         statusLabel.setText("Not enough Ash to ember!");
@@ -202,16 +230,9 @@ public class EmberfallGame {
                     }
                     ash -= 5;
                     emberedAsh++;
-
-                    if (emberedAsh >= 20 && !flameboundInsightUnlocked) {
-                        flameboundInsightButton.setVisible(true);
-                        statusLabel.setText("A flame within you stirs... A deeper understanding of the Flame awakens.");
-                        buttonPanel.revalidate();
-                        buttonPanel.repaint();
-                    }
-
                     ashLabel.setText("Ash: " + ash);
                     emberedAshLabel.setText("Embered Ash: " + emberedAsh);
+                    checkUnlocks();
                 }
             }
         });
@@ -229,9 +250,29 @@ public class EmberfallGame {
                 }
                 emberedAsh -= 20;
                 emberedAshLabel.setText("Embered Ash: " + emberedAsh);
+                checkUnlocks();
                 flameboundInsightUnlocked = true;
                 flameboundInsightButton.setVisible(false);
                 statusLabel.setText("The Flame whispers forgotten truths... You gather more Ash with each breath.");
+            }
+        });
+
+        runeboundCrucibleButton = new JButton("Runebound Crucible - 30 Embered Ash");
+        runeboundCrucibleButton.setVisible(false);
+        buttonPanel.add(runeboundCrucibleButton);
+
+        runeboundCrucibleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (emberedAsh < 30) {
+                    statusLabel.setText("You need more Embered Ash to inscribe the Crucible with runes.");
+                    return;
+                }
+                emberedAsh -= 30;
+                emberedAshLabel.setText("Embered Ash: " + emberedAsh);
+                runeboundCrucibleUnlocked = true;
+                runeboundCrucibleButton.setVisible(false);
+                statusLabel.setText("The runes blaze to life across the Crucible's surface. The ash flows with newfound urgency...");
             }
         });
 
