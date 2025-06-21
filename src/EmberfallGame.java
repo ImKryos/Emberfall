@@ -97,28 +97,36 @@ public class EmberfallGame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
 
         flameLabel = new JLabel(new ImageIcon(scaledFlameImage));
+        flameLabel.setToolTipText(
+                "<html><body style='width: 250px;'>" +
+                "<b><font color='#FFA500'>🕯️ Tend the Flame</font></b><br>" +
+                "Manually coax ash from the sacred Flame.<br><br>" +
+                "<b>Effect:</b> +1 Ash (or +2 if Insight unlocked)<br><br>" +
+                "<i>The Flame watches... ever waiting.</i>" +
+                "</body></html>");
         flameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         flameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // initial padding
 
         JButton tendButton = new JButton("Tend the Flame");
+        tendButton.setToolTipText(
+                "<html><body style='width: 250px;'>" +
+                "<b><font color='#FFA500'>🕯️ Tend the Flame</font></b><br>" +
+                "Manually coax ash from the sacred Flame.<br><br>" +
+                "<b>Effect:</b> +1 Ash (or +2 if Insight unlocked)<br><br>" +
+                "<i>The Flame watches... ever waiting.</i>" +
+                "</body></html>");
         tendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel innerPanel = new JPanel();
         innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
         innerPanel.setOpaque(false);
-
         innerPanel.add(flameLabel);
         innerPanel.add(Box.createVerticalStrut(10));
         innerPanel.add(tendButton);
-
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
         centerPanel.add(innerPanel, gbc);
 
 
@@ -183,6 +191,15 @@ public class EmberfallGame {
 
         // Create "Build Ash Crucible" button
         buildCrucibleButton = new JButton("Build Ash Crucible - 10 Ash");
+        buildCrucibleButton.setToolTipText(
+                "<html><body style='width: 250px;'>" +
+                "<b><font color='#AAAAAA'>⚙️ Ash Crucible</font></b><br>" +
+                "Construct a Crucible to passively gather Ash over time.<br><br>" +
+                "<b>Cost:</b> <font color='#FF5555'>10 Ash</font><br>" +
+                "<b>Time:</b> <font color='#AAAAFF'>3s interval</font><br>" +
+                "<b>Effect:</b> +1 Ash every 3s<br><br>" +
+                "<i>The crucible burns low and steady, never hungering.</i>" +
+                "</body></html>");
         buildCrucibleButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -207,6 +224,16 @@ public class EmberfallGame {
         });
 
         emberAshButton = new JButton("Ember Ash - 5 Ash");
+        emberAshButton.setToolTipText(
+                "<html>" +
+                "<body style='width: 250px;'>" +  // Optional: wrap text nicely
+                "<b><font color='#FFA500'>🔥 Flame Scepter</font></b><br>" +
+                "Infuse ash with the Flame’s will to create <b>Embered Ash</b>.<br><br>" +
+                "<b>Cost:</b> <font color='#FF5555'>5 Ash</font><br>" +
+                "<b>Time:</b> <font color='#AAAAFF'>Instant</font><br>" +
+                "<b>Effect:</b> +1 Embered Ash<br><br>" +
+                "<i>The scepter grows warm in your hand. The Flame watches...</i>" +
+                "</body></html>");
         emberAshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -238,6 +265,14 @@ public class EmberfallGame {
         });
 
         flameboundInsightButton = new JButton("Channel Flamebound Insight - 20 Embered Ash");
+        flameboundInsightButton.setToolTipText(
+                "<html><body style='width: 250px;'>" +
+                "<b><font color='#66FF66'>💡 Flamebound Insight</font></b><br>" +
+                "Unlocks deeper understanding of the Flame, doubling manual Ash gain.<br><br>" +
+                "<b>Cost:</b> <font color='#FFA500'>20 Embered Ash</font><br>" +
+                "<b>Effect:</b> Tend & click yield +2 Ash<br><br>" +
+                "<i>Whispers curl through the smoke. You listen.</i>" +
+                "</body></html>");
         flameboundInsightButton.setVisible(false);
         buttonPanel.add(flameboundInsightButton);
 
@@ -258,6 +293,14 @@ public class EmberfallGame {
         });
 
         runeboundCrucibleButton = new JButton("Runebound Crucible - 30 Embered Ash");
+        runeboundCrucibleButton.setToolTipText(
+                "<html><body style='width: 250px;'>" +
+                "<b><font color='#00BFFF'>💠 Runebound Crucible</font></b><br>" +
+                "Inscribe your Crucible with runes to double its yield.<br><br>" +
+                "<b>Cost:</b> <font color='#FFA500'>30 Embered Ash</font><br>" +
+                "<b>Effect:</b> +2 Ash per 3s<br><br>" +
+                "<i>The runes glow softly... feeding the Flame’s thirst.</i>" +
+                "</body></html>");
         runeboundCrucibleButton.setVisible(false);
         buttonPanel.add(runeboundCrucibleButton);
 
