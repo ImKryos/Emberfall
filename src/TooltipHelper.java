@@ -1,4 +1,48 @@
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 public class TooltipHelper {
+
+
+    private final JWindow tooltipWindow;
+    private final JLabel tooltipLabel;
+
+    public TooltipHelper(JFrame owner) {
+        tooltipWindow = new JWindow(owner);
+        tooltipLabel = new JLabel();
+        tooltipLabel.setForeground(new Color(255, 204, 102)); // Light text color
+        tooltipLabel.setBackground(new Color(36,24,24)); // Dark background
+        tooltipLabel.setOpaque(true);
+        tooltipLabel.setBorder(BorderFactory.createLineBorder(new Color(255,140,0))); // Orange border
+        tooltipLabel.setFont(new Font("Fira Code", Font.PLAIN, 14));
+        tooltipLabel.setVerticalAlignment(SwingConstants.TOP);
+        tooltipLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+        tooltipWindow.getContentPane().add(tooltipLabel);
+        tooltipWindow.pack();
+    }
+
+    public void installTooltip(JComponent component, String htmlText) {
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                tooltipLabel.setText(htmlText);
+                tooltipWindow.pack();
+                Point location = component.getLocationOnScreen();
+                tooltipWindow.setLocation(location.x + component.getWidth(), location.y);
+                tooltipWindow.setVisible(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                tooltipWindow.setVisible(false);
+            }
+        });
+    }
+
 
     public static String getAshCrucibleTooltip() {
         return "<html><body style='width: 250px;'>" +
@@ -55,6 +99,16 @@ public class TooltipHelper {
                 "<b>Cost:</b> <font color='#FF5555'>5 Ash</font><br>" +
                 "<b>Effect:</b> +1 Embered Ash<br><br>" +
                 "<i>The ember pulses with your will.</i>" +
+                "</body></html>";
+    }
+
+    public static String getSoulglassPrismTooltip() {
+        return "<html><body style='width: 250px;'>" +
+                "<b><font color='#DA70D6'>🔮 Soulglass Prism</font></b><br>" +
+                "Channel Embered Ash through a prism of soulglass to enhance its potency.<br><br>" +
+                "<b>Cost:</b> <font color='#FFA500'>40 Embered Ash</font><br>" +
+                "<b>Effect:</b> +1 Embered Ash per conversion<br><br>" +
+                "<i>Each shard refracts the Flame's essence, burning ever brighter.</i>" +
                 "</body></html>";
     }
 }

@@ -32,6 +32,10 @@ public class EmberfallGame {
     private JButton runeboundCrucibleButton;
     private JPanel topPanel;
     private JPanel buttonPanel;
+    private JButton soulglassPrismButton;
+    private boolean soulglassPrismUnlocked = false;
+    private boolean soulglassPrismPurchased = false;
+
 
     private void updateFlameGlow() {
         int glowStrength = Math.min(ash / 25, 10);
@@ -77,9 +81,18 @@ public class EmberfallGame {
             buttonPanel.revalidate();
             buttonPanel.repaint();
         }
+
+        if (emberedAsh >= 40 && !soulglassPrismUnlocked) {
+            soulglassPrismUnlocked = true;
+            soulglassPrismButton.setVisible(true);
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+            statusLabel.setText("The Soulglass Prism hums with latent power, amplifying your connection to the Flame...");
+        }
     }
 
     public EmberfallGame() {
+        TooltipHelper tooltipHelper = new TooltipHelper(frame);
 
         UIManager.put("ToolTip.background", new Color(36, 24, 24));       // dark smoky backdrop
         UIManager.put("ToolTip.foreground", new Color(255, 204, 102));    // ember-orange text
@@ -111,12 +124,12 @@ public class EmberfallGame {
         gbc.anchor = GridBagConstraints.CENTER;
 
         flameLabel = new JLabel(new ImageIcon(scaledFlameImage));
-        flameLabel.setToolTipText(TooltipHelper.getFlameTooltip());
+        tooltipHelper.installTooltip(flameLabel, TooltipHelper.getFlameTooltip());
         flameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         flameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // initial padding
 
         JButton tendButton = new JButton("Tend the Flame");
-        tendButton.setToolTipText(TooltipHelper.getTendTooltip());
+        tooltipHelper.installTooltip(tendButton, TooltipHelper.getTendTooltip());
         tendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel innerPanel = new JPanel();
@@ -189,7 +202,7 @@ public class EmberfallGame {
 
         // Create "Build Ash Crucible" button
         buildCrucibleButton = new JButton("Build Ash Crucible - 10 Ash");
-        buildCrucibleButton.setToolTipText(TooltipHelper.getAshCrucibleTooltip());
+        tooltipHelper.installTooltip(buildCrucibleButton, TooltipHelper.getAshCrucibleTooltip());
         buildCrucibleButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -204,7 +217,7 @@ public class EmberfallGame {
                 ashCrucibleTimer = new Timer(3000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        ash += runeboundCruciblePurchased ? 2: 1;
+                        ash += runeboundCruciblePurchased ? 2 : 1;
                         ashLabel.setText("Ash: " + ash);
                         checkUnlocks();
                     }
@@ -214,7 +227,7 @@ public class EmberfallGame {
         });
 
         emberAshButton = new JButton("Ember Ash - 5 Ash");
-        emberAshButton.setToolTipText(TooltipHelper.getEmberAshTooltip());
+        tooltipHelper.installTooltip(emberAshButton, TooltipHelper.getEmberAshTooltip());
         emberAshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -237,7 +250,7 @@ public class EmberfallGame {
                         return;
                     }
                     ash -= 5;
-                    emberedAsh++;
+                    emberedAsh += soulglassPrismPurchased ? 2 : 1;
                     ashLabel.setText("Ash: " + ash);
                     emberedAshLabel.setText("Embered Ash: " + emberedAsh);
                     checkUnlocks();
@@ -246,7 +259,7 @@ public class EmberfallGame {
         });
 
         flameboundInsightButton = new JButton("Channel Flamebound Insight - 20 Embered Ash");
-        flameboundInsightButton.setToolTipText(TooltipHelper.getFlameboundInsightTooltip());
+        tooltipHelper.installTooltip(flameboundInsightButton, TooltipHelper.getFlameboundInsightTooltip());
         flameboundInsightButton.setVisible(false);
         buttonPanel.add(flameboundInsightButton);
 
@@ -267,7 +280,7 @@ public class EmberfallGame {
         });
 
         runeboundCrucibleButton = new JButton("Runebound Crucible - 30 Embered Ash");
-        runeboundCrucibleButton.setToolTipText(TooltipHelper.getRuneboundCrucibleTooltip());
+        tooltipHelper.installTooltip(runeboundCrucibleButton, TooltipHelper.getRuneboundCrucibleTooltip());
         runeboundCrucibleButton.setVisible(false);
         buttonPanel.add(runeboundCrucibleButton);
 
@@ -280,9 +293,29 @@ public class EmberfallGame {
                 }
                 emberedAsh -= 30;
                 emberedAshLabel.setText("Embered Ash: " + emberedAsh);
-                runeboundCrucibleUnlocked = true;
+                runeboundCruciblePurchased = true;
                 runeboundCrucibleButton.setVisible(false);
                 statusLabel.setText("The runes blaze to life across the Crucible's surface. The ash flows with newfound urgency...");
+            }
+        });
+
+        soulglassPrismButton = new JButton("Soulglass Prism - 40 Embered Ash");
+        tooltipHelper.installTooltip(soulglassPrismButton, TooltipHelper.getSoulglassPrismTooltip());
+        soulglassPrismButton.setVisible(false);
+        buttonPanel.add(soulglassPrismButton);
+
+        soulglassPrismButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (emberedAsh < 40) {
+                    statusLabel.setText("You lack the Embered Ash to forge the Soulglass Prism.");
+                    return;
+                }
+                emberedAsh -= 40;
+                emberedAshLabel.setText("Embered Ash: " + emberedAsh);
+                soulglassPrismPurchased = true;
+                soulglassPrismButton.setVisible(false);
+                statusLabel.setText("The Soulglass shatters and reforms, amplifying your connection to the Flame...");
             }
         });
 
